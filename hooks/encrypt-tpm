@@ -20,7 +20,9 @@ run_hook() {
       echo "TPM - Boot Partition decryption was failed"
       echo "TPM - Software Integrity Check is failed"
       echo "!!!!!!!!! EVIL MAID ATTACK !!!!!!!!!"
+      echo "!!!!!!!!! ABORT BOOT PROCESS !!!!!!!"
       shred -u $TPM2_LUKS_SECRET
+      sleep 30
       return 1
     fi
 }
