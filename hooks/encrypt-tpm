@@ -18,6 +18,8 @@ run_hook() {
       shred -u $TPM2_LUKS_SECRET
     else
       echo "TPM - Boot Partition decryption was failed"
+      echo "TPM - Software Integrity Check is failed"
+      echo "!!!!!!!!! EVIL MAID ATTACK !!!!!!!!!"
       shred -u $TPM2_LUKS_SECRET
       return 1
     fi
