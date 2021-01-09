@@ -1,11 +1,24 @@
 #!/usr/bin/ash
 
-run_hook() {
-    modprobe -a -q tpm_crb >/dev/null 2>&1
-    tpm2_unseal -c 0x81000000 -p pcr:sha1:0,2,4,7 -o crypto_keyfile.bin
-    cryptsetup --key-file crypto_keyfile.bin luksOpen /dev/sda2 luks_boot
-    shred -u crypto_keyfile.bin
-    echo "Boot partition is decrypted."
-}
+TPM2_LUKS_SECRET="crypto_keyfile.bin"
+TPM2_LUKS_DEV="/dev/sda2"
+TPM2_LUKS_NAME="luks_boot"
 
-# vim: set ft=sh ts=4 sw=4 et:
+run_hook() {
+
+    # add tpm modules
+    modprobe -a -q tpm_crb
+
+    tpm2_unseal -c 0x81000000 -p pcr:sha1:0,2,4,7 -o $TPM2_LUKS_SECRET
+
+    cryptsetup --key-file $TPM2_LUKS_SECRET luksOpen $TPM2_LUKS_DEV $TPM2_LUKS_NAME
+    _decrypted=$?
+    if [ "$_decrypted" -eq 0 ]; then
+      echo "TPM - Boot Partition decryption was successful"
+      shred -u $TPM2_LUKS_SECRET
+    else
+      echo "TPM - Boot Partition decryption was failed"
+      shred -u $TPM2_LUKS_SECRET
+      return 1
+    fi
+}
