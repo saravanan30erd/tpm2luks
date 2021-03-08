@@ -11,6 +11,8 @@ build() {
     add_module "rng_core"
 
     add_binary "tpm2_unseal"
+    add_binary "cryptsetup"
+    add_binary "shred"
     add_binary "/usr/lib/libtss2-tcti-device.so"
     add_binary "/usr/lib/libtss2-tcti-device.so.0"
 

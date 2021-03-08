@@ -1,0 +1,97 @@
+#!/bin/bash
+
+set -euo pipefail
+
+TPM2_LUKS_CONFIG_FILE="/etc/tpm2-luks.conf"
+TPM2_DEFAULT_LUKS_KEYSLOT="4"
+TPM2_LUKS_DEV=""
+TPM2_LUKS_KEYSLOT=""
+
+# load variables from conf file
+. "$TPM2_LUKS_CONFIG_FILE" || {
+  echo "Failed to read the configuration file '$TPM2_LUKS_CONFIG_FILE'"
+  exit 1
+}
+
+while getopts ":d:s:h" opt; do
+  case "$opt" in
+    d)
+      TPM2_LUKS_DEV="$OPTARG"
+      printf '%s\n' "INFO: Setting device to '$TPM2_LUKS_DEV'."
+      ;;
+    s)
+      if [ "$OPTARG" -gt -8 ] && [ "$OPTARG" -lt 8 ]; then
+        TPM2_LUKS_KEYSLOT="$OPTARG"
+        printf '%s\n' "INFO: Setting LUKS keyslot to '$TPM2_LUKS_KEYSLOT'."
+      else
+        printf '%s\n' "ERROR: Chosen LUKS keyslot '$TPM2_LUKS_KEYSLOT' is invalid. Please choose valid LUKS keyslot number between '0-7'."
+        exit 1
+      fi
+      ;;
+    h)
+      echo
+      echo " -d <device>   : select an existing device"
+      echo " -s <slot>     : select the LUKS keyslot"
+      exit 0
+      ;;
+    \?)
+      printf '%s\n' "ERROR: Invalid option: '$OPTARG'" >&2
+      echo
+      echo " -d <device>   : select an existing device"
+      echo " -s <slot>     : select the LUKS keyslot"
+      exit 1
+      ;;
+  esac
+done
+
+if [ -z "$TPM2_LUKS_DEV" ]; then
+  echo "ERROR: Device not selected. Please select an existing device using '-d' option."
+  exit 1
+elif [ ! -e "$TPM2_LUKS_DEV" ]; then
+  printf '%s\n' "ERROR: Selected device '$TPM2_LUKS_DEV' doesn't exist."
+  exit 1
+elif [ ! -r "$TPM2_LUKS_DEV" ] || [ ! -w "$TPM2_LUKS_DEV" ]; then
+  printf '%s\n' "ERROR: Selected device '$TPM2_LUKS_DEV' isn't accessible for current user '$(whoami)'. Please execute this script as 'root'."
+  exit 1
+fi
+
+if [ -z "$TPM2_LUKS_KEYSLOT" ]; then
+  TPM2_LUKS_KEYSLOT=$TPM2_DEFAULT_LUKS_KEYSLOT
+  echo "INFO: LUKS keyslot not selected, using default LUKS keyslot."
+fi
+
+printf '%s\n' "INFO: This script will utilize LUKS keyslot '$TPM2_LUKS_KEYSLOT' on device '$TPM2_LUKS_DEV'."
+
+echo "Create a random secret key"
+dd if=/dev/random of=/etc/secret.bin bs=32 count=1
+
+printf '%s\n' " Adding secret key to '$TPM2_LUKS_DEV' with cryptsetup..."
+cryptsetup --key-slot="$TPM2_LUKS_KEYSLOT" luksAddKey $TPM2_LUKS_DEV /etc/secret.bin
+
+echo "Note that you may need to reset your TPM from the BIOS setup page"
+sleep 2
+
+echo "Register the secret key to TPM"
+
+tpm2_createpolicy --policy-pcr -l sha1:0,2,4,7 -L policy.digest
+sleep 2
+tpm2_createprimary -C e -g sha1 -G rsa -c primary.context
+sleep 2
+tpm2_create -g sha256 -u obj.pub -r obj.priv -C primary.context -L policy.digest -a "noda|adminwithpolicy|fixedparent|fixedtpm" -i /etc/secret.bin
+sleep 2
+tpm2_load -C primary.context -u obj.pub -r obj.priv -c load.context
+sleep 2
+tpm2_evictcontrol -C o -c load.context 0x81000000
+sleep 2
+rm -vf load.context obj.priv obj.pub policy.digest primary.context
+
+echo "Verify whether the key is successfully added in TPM"
+tpm2_getcap handles-persistent
+tpm2_readpublic -c 0x81000000
+
+echo "Compare the created secret key and TPM key"
+echo "=================================="
+tpm2_unseal -c 0x81000000 -p pcr:sha1:0,2,4,7 -o /tmp/secret
+sha1sum /etc/secret.bin
+sha1sum /tmp/secret
+echo "=================================="
