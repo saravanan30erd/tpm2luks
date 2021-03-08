@@ -1,6 +1,7 @@
 #!/bin/bash
 
 build() {
+
     local mod
 
     add_module "tpm_crb"
@@ -13,11 +14,13 @@ build() {
     add_binary "/usr/lib/libtss2-tcti-device.so"
     add_binary "/usr/lib/libtss2-tcti-device.so.0"
 
+    add_file "/etc/tpm2-luks.conf" "/etc/tpm2-luks.conf"
+
     add_runscript
 }
 
 help() {
     cat <<HELPEOF
-This hook allows decrypting a LUKS partition using TPM.
+This hook allows decrypting a LUKS partition using TPM 2.0.
 HELPEOF
 }

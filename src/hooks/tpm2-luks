@@ -1,10 +1,26 @@
 #!/usr/bin/ash
 
+TPM2_LUKS_CONFIG_FILE="/etc/tpm2-luks.conf"
 TPM2_LUKS_SECRET="crypto_keyfile.bin"
-TPM2_LUKS_DEV="/dev/sda2"
-TPM2_LUKS_NAME="luks_boot"
+
+message() {
+  echo "$@" >&2
+  return 0
+}
 
 run_hook() {
+
+    # load variables from conf file
+    . "$TPM2_LUKS_CONFIG_FILE" || {
+      message "Failed to read the configuration file '$TPM2_LUKS_CONFIG_FILE'"
+      return 1
+    }
+
+    # sanity check
+    if [ -z "$TPM2_LUKS_DEV" ]; then
+      message "Please check TPM2_LUKS_DEV in $TPM2_LUKS_CONFIG_FILE"
+      return 1
+    fi
 
     # add tpm modules
     modprobe -a -q tpm_crb
