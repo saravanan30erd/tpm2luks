@@ -16,7 +16,7 @@ build() {
     add_binary "/usr/lib/libtss2-tcti-device.so"
     add_binary "/usr/lib/libtss2-tcti-device.so.0"
 
-    add_file "/etc/tpm2-luks.conf" "/etc/tpm2-luks.conf"
+    add_file "/etc/tpm2luks.conf" "/etc/tpm2luks.conf"
 
     add_runscript
 }

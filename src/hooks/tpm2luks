@@ -1,6 +1,6 @@
 #!/usr/bin/ash
 
-TPM2_LUKS_CONFIG_FILE="/etc/tpm2-luks.conf"
+TPM2_LUKS_CONFIG_FILE="/etc/tpm2luks.conf"
 TPM2_LUKS_SECRET="crypto_keyfile.bin"
 
 message() {
