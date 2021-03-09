@@ -89,9 +89,14 @@ echo "Verify whether the key is successfully added in TPM"
 tpm2_getcap handles-persistent
 tpm2_readpublic -c 0x81000000
 
-echo "Compare the created secret key and TPM key"
 echo "=================================="
 tpm2_unseal -c 0x81000000 -p pcr:sha1:0,2,4,7 -o /tmp/secret
-sha1sum /etc/secret.bin
-sha1sum /tmp/secret
+
+secret_checksum="$(sha1sum /etc/secret.bin)"
+tpm_checksum="$(sha1sum /tmp/secret)"
+if [[ "$secret_checksum" == "$tpm_checksum" ]]; then
+    echo "The secret key is successfully registered in TPM."
+else
+    echo "The secret key is not registered properly in TPM."
+fi
 echo "=================================="
