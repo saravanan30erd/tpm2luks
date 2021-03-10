@@ -7,10 +7,10 @@ The TPM audits the boot state by the use of Platform Configuration Registers (PC
 The key point is that these are values which cannot be set and can only be appended. Each process in the boot (e.g. BIOS/UEFI) would append relevant configurations to the PCRs.
 
 Selected the below PCRs for UEFI system,
-– PCR0: Core System Firmware executable code (changes when a BIOS update is performed)
-– PCR2: extended or pluggable executable code
-– PCR4: UEFI Boot Manager (changes when you change the boot loader executable)
-– PCR7: Secure Boot State (changes when you change the secure boot status)
+* PCR0: Core System Firmware executable code (changes when a BIOS update is performed)
+* PCR2: extended or pluggable executable code
+* PCR4: UEFI Boot Manager (changes when you change the boot loader executable)
+* PCR7: Secure Boot State (changes when you change the secure boot status)
 
 This was only tested and intended for:
 
@@ -71,7 +71,7 @@ By default, it uses `keyslot 4` if you don't pass `-s <keyslot_number>`.
 tpm2luks-enroll -d /dev/sda2
 ```
 
-`tpm2luks-enroll` will generate a random secret key and enroll the key to the disk and TPM 2.0.
+`tpm2luks-enroll` will generate a encryption key and enroll the key to the disk and TPM 2.0.
 
 ## Enable tpm2luks initramfs hook
 
@@ -84,3 +84,10 @@ tpm2luks-load
 ```
 
 Reboot and test your configuration.
+
+# License
+
+Licensed under
+
+- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or
+  http://www.apache.org/licenses/LICENSE-2.0)
