@@ -55,10 +55,10 @@ LUKS encrypted volume name after unlocking,
 TPM2_LUKS_NAME="luks_boot"
 ```
 
-## Enroll a secret key to existing LUKS encrypted volume and TPM 2.0
+## Enroll a secret key to existing LUKS encrypted volume using TPM 2.0
 
-To enroll the secret key to existing *LUKS* encrypted volume and *TPM 2.0*
-you can use `tpm2luks-enroll`,
+To enroll the secret key to existing *LUKS* encrypted volume using *TPM 2.0*.
+You can use `tpm2luks-enroll`,
 see `tpm2luks-enroll -h` for help:
 
 ```
