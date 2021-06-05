@@ -8,6 +8,7 @@ The key point is that these are values which cannot be set and can only be appen
 
 Selected the below PCRs for UEFI system,
 * PCR0: Core System Firmware executable code (changes when a BIOS update is performed)
+* PCR1: Core System Firmware Data (changes when you change your BIOS settings)
 * PCR2: extended or pluggable executable code
 * PCR4: UEFI Boot Manager (changes when you change the boot loader executable)
 * PCR7: Secure Boot State (changes when you change the secure boot status)

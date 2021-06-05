@@ -73,7 +73,7 @@ sleep 2
 
 echo "Register the secret key to TPM"
 
-tpm2_createpolicy --policy-pcr -l sha1:0,2,4,7 -L policy.digest
+tpm2_createpolicy --policy-pcr -l sha1:0,1,2,4,7 -L policy.digest
 sleep 2
 tpm2_createprimary -C e -g sha1 -G rsa -c primary.context
 sleep 2
@@ -90,7 +90,7 @@ tpm2_getcap handles-persistent
 tpm2_readpublic -c 0x81000000
 
 echo "=================================="
-tpm2_unseal -c 0x81000000 -p pcr:sha1:0,2,4,7 -o /tmp/secret
+tpm2_unseal -c 0x81000000 -p pcr:sha1:0,1,2,4,7 -o /tmp/secret
 
 secret_checksum="$(sha1sum /etc/secret.bin)"
 tpm_checksum="$(sha1sum /tmp/secret)"
