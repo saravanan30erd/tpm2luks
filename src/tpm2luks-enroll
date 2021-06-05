@@ -92,11 +92,13 @@ tpm2_readpublic -c 0x81000000
 echo "=================================="
 tpm2_unseal -c 0x81000000 -p pcr:sha1:0,1,2,4,7 -o /tmp/secret
 
-secret_checksum="$(sha1sum /etc/secret.bin)"
-tpm_checksum="$(sha1sum /tmp/secret)"
+secret_checksum="$(sha1sum /etc/secret.bin | awk '{print $1}')"
+tpm_checksum="$(sha1sum /tmp/secret | awk '{print $1}')"
 if [[ "$secret_checksum" == "$tpm_checksum" ]]; then
     echo "The secret key is successfully registered in TPM."
 else
     echo "The secret key is not registered properly in TPM."
+    exit 1
 fi
+shred -u /tmp/secret
 echo "=================================="
