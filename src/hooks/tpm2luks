@@ -30,11 +30,12 @@ run_hook() {
     cryptsetup --key-file $TPM2_LUKS_SECRET luksOpen $TPM2_LUKS_DEV $TPM2_LUKS_NAME
     _decrypted=$?
     if [ "$_decrypted" -eq 0 ]; then
-      echo "TPM - Boot Partition decryption was successful"
+      echo "TPM2.0 - Boot Partition decryption was successful"
+      sleep 3
       shred -u $TPM2_LUKS_SECRET
     else
-      echo "TPM - Boot Partition decryption was failed"
-      echo "TPM - Software Integrity Check is failed"
+      echo "TPM2.0 - Boot Partition decryption was failed"
+      echo "TPM2.0 - Software Integrity Check is failed"
       echo "!!!!!!!!! EVIL MAID ATTACK !!!!!!!!!"
       echo "!!!!!!!!! ABORT BOOT PROCESS !!!!!!!"
       shred -u $TPM2_LUKS_SECRET
