@@ -31,7 +31,7 @@ run_hook() {
     _decrypted=$?
     if [ "$_decrypted" -eq 0 ]; then
       echo "TPM2.0 - Boot Partition decryption was successful"
-      sleep 3
+      sleep 5
       shred -u $TPM2_LUKS_SECRET
     else
       echo "TPM2.0 - Boot Partition decryption was failed"
